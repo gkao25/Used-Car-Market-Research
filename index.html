@@ -42,6 +42,39 @@
 
     <main>
       <h2>What factors affect the price of used cars in India?</h2>
+      
+      <div id="sliders">
+        <label> <!--show Manufacturing Year until: -->
+          <em>Manufacturing Year:</em>
+          <input type="range" id="commit-progress" min="2010" max="2023" value="2023">
+          <time id="selected-year"></time>
+        </label>
+        
+        <label> <!--show KM driven until: -->
+          <em>Number of kilometers driven:</em>
+          <input type="range" id="commit-progress" min="1207" max="124716" value="124716">
+          <time id="selected-km"></time>
+        </label>
+
+        <label> <!--show Num of imperfections until: -->
+          <em>Number of imperfections:</em>
+          <input type="range" id="commit-progress" min="0" max="43" value="43">
+          <time id="selected-imperfections"></time>
+        </label>
+
+        <fieldset id="transmission-filter">
+          <legend><em>Transmission Type:</em></legend>
+          <label>
+            <input type="checkbox" name="transmission" value="Manual" checked>
+            Manual
+          </label>
+
+          <label>
+            <input type="checkbox" name="transmission" value="Automatic" checked>
+            Automatic
+          </label>
+        </fieldset>
+      </div>
 
       <figure class="line-container">
         <svg
@@ -56,7 +89,7 @@
         </aside>
         <figcaption>
           Price points for used cars in India from Cars24, filterable by using
-          sliders on the right.
+          sliders on the right. Price was converted from Indian rupees into USD.
         </figcaption>
       </figure>
 

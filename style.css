@@ -137,3 +137,66 @@ figure {
   height: 100%;
   max-width: 1000px;
 }
+
+#transmission-filter {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+#transmission-filter legend {
+  float: left;          /* keeps the legend on the same row as the boxes */
+  margin-right: 0.5rem;
+}
+
+#transmission-filter label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-style: normal;
+}
+
+#sliders label,
+#sliders em {
+  font-family: inherit;  /* your font here */
+  font-size: 0.9rem;
+  font-style: normal;             /* remove this line to keep the italics */
+}
+/* Controls layout: row on wide screens, list on narrow ones */
+#sliders {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+}
+
+#sliders > label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap; /* keep each name with its slider */
+}
+
+@media (max-width: 1000px) {
+  #sliders {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #sliders > label {
+    display: grid;
+    grid-template-columns: 14rem 1fr auto; /* name | slider | value */
+  }
+
+  #sliders > label input[type="range"] {
+    width: 100%;
+  }
+
+  #transmission-filter legend {
+    width: 14rem;
+    margin-right: 0;
+  }
+}
