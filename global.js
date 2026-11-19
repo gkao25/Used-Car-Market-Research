@@ -6,7 +6,7 @@ const BASE_PATH =
     ? "/" // Local server
     : "/Used-Car-Market-Research/"; // GitHub Pages repo name
 
-function drawBeeswarm(data, { width = 900, height = 360, r = 4.5 } = {}) {
+function drawBeeswarm(data, { width = 900, height = 500, r = 4.5 } = {}) {
   const m = { top: 20, right: 24, bottom: 44, left: 24 };
 
   const svg = d3
