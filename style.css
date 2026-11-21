@@ -200,3 +200,68 @@ figure {
     margin-right: 0;
   }
 }
+
+.range-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 14rem;
+}
+
+.range-inputs input {
+  width: 6rem;
+}
+
+.dual-range {
+  position: relative;
+  height: 1.5rem;
+}
+
+.dual-range .track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  transform: translateY(-50%);
+  background: var(--color-neutral-80);
+  border-radius: 2px;
+}
+
+.dual-range .fill {
+  position: absolute;
+  height: 100%;
+  background: #2b2d42;
+}
+
+.dual-range input[type="range"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  pointer-events: none;            /* the bar ignores clicks */
+}
+
+.dual-range input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;            /* only the thumb is grabbable */
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: #2b2d42;
+  cursor: pointer;
+}
+
+.dual-range input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: none;
+  border-radius: 50%;
+  background: #2b2d42;
+  cursor: pointer;
+}
+
