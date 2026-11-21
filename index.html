@@ -44,23 +44,47 @@
       <h2>What factors affect the price of used cars in India?</h2>
       
       <div id="sliders">
-        <label> <!--show Manufacturing Year until: -->
+        <div class="range-filter" id="year-filter">
           <em>Manufacturing Year:</em>
-          <input type="range" id="commit-progress" min="2010" max="2023" value="2023">
-          <time id="selected-year"></time>
-        </label>
-        
-        <label> <!--show KM driven until: -->
-          <em>Number of kilometers driven:</em>
-          <input type="range" id="commit-progress" min="1207" max="124716" value="124716">
-          <time id="selected-km"></time>
-        </label>
+          <div class="range-inputs">
+            <input type="number" min="2010" max="2023" value="2010">
+            &ndash;
+            <input type="number" min="2010" max="2023" value="2023">
+          </div>
+          <div class="dual-range">
+            <div class="track"><div class="fill"></div></div>
+            <input type="range" min="2010" max="2023" value="2010" aria-label="Minimum year">
+            <input type="range" min="2010" max="2023" value="2023" aria-label="Maximum year">
+          </div>
+        </div>
 
-        <label> <!--show Num of imperfections until: -->
+        <div class="range-filter" id="km-filter">
+          <em>Number of kilometers driven:</em>
+          <div class="range-inputs">
+            <input type="number" min="1207" max="124716" value="1207">
+            &ndash;
+            <input type="number" min="1207" max="124716" value="124716">
+          </div>
+          <div class="dual-range">
+            <div class="track"><div class="fill"></div></div>
+            <input type="range" min="1207" max="124716" value="1207" aria-label="Minimum kilometers">
+            <input type="range" min="1207" max="124716" value="124716" aria-label="Maximum kilometers">
+          </div>
+        </div>
+
+        <div class="range-filter" id="imperfections-filter">
           <em>Number of imperfections:</em>
-          <input type="range" id="commit-progress" min="0" max="43" value="43">
-          <time id="selected-imperfections"></time>
-        </label>
+          <div class="range-inputs">
+            <input type="number" min="0" max="43" value="0">
+            &ndash;
+            <input type="number" min="0" max="43" value="43">
+          </div>
+          <div class="dual-range">
+            <div class="track"><div class="fill"></div></div>
+            <input type="range" min="0" max="43" value="0" aria-label="Minimum imperfections">
+            <input type="range" min="0" max="43" value="43" aria-label="Maximum imperfections">
+          </div>
+        </div>
 
         <fieldset id="transmission-filter">
           <legend><em>Transmission Type:</em></legend>
