@@ -24,13 +24,19 @@ function drawBeeswarm(data, { width = 900, height = 500, r = 4.5 } = {}) {
     .range([m.left, width - m.right]);
 
   // color by model
+  // alphabetical, as before
   const models = Array.from(new Set(data.map((d) => d.model))).sort();
-  
   const dropdownModels = ["Select All", ...models];
 
+  // one shade of green per model, spread across the gradient
+  const color = d3.scaleOrdinal(
+    models,
+    d3.quantize((t) => d3.interpolateGreens(0.3 + 0.65 * t), models.length),
+  );
+
   // Create dropdown container
-  const filter = d3.select('#model-dropdown');
-  
+  const filter = d3.select("#model-dropdown");
+
   filter.html(`
     <button id="filter-btn">
     ▼ Model: All
@@ -38,31 +44,54 @@ function drawBeeswarm(data, { width = 900, height = 500, r = 4.5 } = {}) {
     <div id="filter-menu" class="hidden"></div>
   `);
 
-  const menu = d3.select('#filter-menu');
+  const menu = d3.select("#filter-menu");
 
   menu
-  .selectAll('label')
-  .data(dropdownModels)
-  .join('label')
-  .attr('class', 'option')
-  .html(
-    d => `
+    .selectAll("label")
+    .data(dropdownModels)
+    .join("label")
+    .attr("class", "option")
+    .html(
+      (d) => `
       <input type="checkbox" value="${d}">
       ${d}
-    `
-  );
+    `,
+    );
 
-  d3.select('#filter-btn').on('click', () => {
-    menu.classed('hidden', !menu.classed('hidden'));
+  d3.select("#filter-btn").on("click", () => {
+    menu.classed("hidden", !menu.classed("hidden"));
   });
 
-  const color = d3.scaleSequential(d3.interpolateGreens).domain([0, 100]);
-
-  // axis
-  svg
+  // gridlines + axis
+  const axis = svg
     .append("g")
     .attr("transform", `translate(0,${height - m.bottom})`)
-    .call(d3.axisBottom(x).ticks(10).tickFormat(d3.format("~s")));
+    .call(
+      d3
+        .axisBottom(x)
+        .ticks(10)
+        .tickFormat(d3.format("$~s"))
+        .tickSize(-(height - m.top - m.bottom)) // lines extend up through the plot
+        .tickSizeOuter(0), // no side lines at the ends
+    );
+
+  // thick bottom line
+  axis.select(".domain").attr("stroke", "#444").attr("stroke-width", 2);
+
+  // faint gridlines
+  axis.selectAll(".tick line").attr("stroke", "#e5e7eb");
+
+  // short dark tick marks going down from the thick line
+  axis
+    .selectAll(".tick")
+    .append("line")
+    .attr("y1", 0)
+    .attr("y2", 6)
+    .attr("stroke", "#444")
+    .attr("stroke-width", 2);
+
+  // push labels down so they clear the tick marks
+  axis.selectAll(".tick text").attr("y", 10).attr("font-size", 14);
 
   // beeswarm layout
   const cy = (height - m.bottom + m.top) / 2;
@@ -89,21 +118,19 @@ function drawBeeswarm(data, { width = 900, height = 500, r = 4.5 } = {}) {
     .attr("r", r)
     .attr("fill", (d) => color(d.model));
 
- 
-
   // Highlight selected model
   function updateModelHighlight() {
     const selectedModels = menu
-    .selectAll("input:checked")
-    .nodes()
-    .map(d => d.value)
-    .filter(d => d !== "Select All");
+      .selectAll("input:checked")
+      .nodes()
+      .map((d) => d.value)
+      .filter((d) => d !== "Select All");
 
     const selectedTransmissions = d3
-    .select("#transmission-filter")
-    .selectAll("input:checked")
-    .nodes()
-    .map(d => d.value);
+      .select("#transmission-filter")
+      .selectAll("input:checked")
+      .nodes()
+      .map((d) => d.value);
 
     const showAll = selectedModels.length === 0;
 
@@ -116,87 +143,73 @@ function drawBeeswarm(data, { width = 900, height = 500, r = 4.5 } = {}) {
     }
 
     dots
-    .attr("fill", d => {
-      const modelMatch =
-      showAll || selectedModels.includes(d.model);
-      
-      const transmissionMatch =
-      selectedTransmissions.includes(d.transmission);
+      .attr("fill", (d) => {
+        const modelMatch = showAll || selectedModels.includes(d.model);
 
-      return modelMatch && transmissionMatch
-      ? color(d.model)
-      : "#dddddd";
-    })
-    .attr("opacity", d => {
-      const modelMatch =
-      showAll || selectedModels.includes(d.model);
+        const transmissionMatch = selectedTransmissions.includes(
+          d.transmission,
+        );
 
-      const transmissionMatch =
-      selectedTransmissions.includes(d.transmission);
+        return modelMatch && transmissionMatch ? color(d.model) : "#dddddd";
+      })
+      .attr("opacity", (d) => {
+        const modelMatch = showAll || selectedModels.includes(d.model);
 
-      return modelMatch && transmissionMatch
-      ? 1
-      : 0.2;
-    });
+        const transmissionMatch = selectedTransmissions.includes(
+          d.transmission,
+        );
 
+        return modelMatch && transmissionMatch ? 1 : 0.4;
+      });
   }
 
-  /*menu
-  .selectAll("input")
-  .on("change", updateModelHighlight);*/
-
   d3.select("#transmission-filter")
-  .selectAll("input")
-  .on("change", updateModelHighlight);
-  
-  menu
-  .selectAll("input")
-  .on("change", function () {
+    .selectAll("input")
+    .on("change", updateModelHighlight);
 
+  menu.selectAll("input").on("change", function () {
     if (this.value === "Select All") {
       const checked = this.checked;
 
-      menu
-        .selectAll("input")
-        .property("checked", checked);
+      menu.selectAll("input").property("checked", checked);
     } else {
       const allModels = menu
         .selectAll("input")
         .nodes()
-        .filter(d => d.value !== "Select All");
+        .filter((d) => d.value !== "Select All");
 
-      const checkedModels = allModels.filter(d => d.checked);
+      const checkedModels = allModels.filter((d) => d.checked);
 
       menu
         .select('input[value="Select All"]')
-        .property(
-          "checked",
-          checkedModels.length === allModels.length
-        );
+        .property("checked", checkedModels.length === allModels.length);
     }
 
-  
-  updateModelHighlight();
+    updateModelHighlight();
+  });
+
+  d3.select("#clear-filters").on("click", () => {
+    menu.selectAll("input").property("checked", false); // models back to "All"
+    menu.classed("hidden", true); // close the dropdown
+    d3.select("#transmission-filter")
+      .selectAll("input")
+      .property("checked", true); // both transmissions on
+    updateModelHighlight(); // redraw dots + button label
   });
 }
 
-
-
+// import data and draw the plot
 d3.csv(BASE_PATH + "resale_car_clean.csv", (d) => ({
   model: d.model,
   price: +d.USD_price,
   year: +d.Manufacturing_year,
   km: +d["KM driven"],
   owner: +d.Ownership,
-  transmission: +d.Transmission_Manual === 1
-    ? "Manual"
-    : "Automatic",
+  transmission: +d.Transmission_Manual === 1 ? "Manual" : "Automatic",
   imperfections: +d.Imperfections,
 })).then((data) => {
   drawBeeswarm(data);
 });
-
-
 
 function setupRange(el, onChange) {
   const [lo, hi] = el.querySelectorAll('input[type="range"]');
@@ -221,22 +234,66 @@ function setupRange(el, onChange) {
 
   lo.addEventListener("input", () => update(lo));
   hi.addEventListener("input", () => update(hi));
-  loNum.addEventListener("change", () => { lo.value = loNum.value; update(lo); });
-  hiNum.addEventListener("change", () => { hi.value = hiNum.value; update(hi); });
+  loNum.addEventListener("change", () => {
+    lo.value = loNum.value;
+    update(lo);
+  });
+  hiNum.addEventListener("change", () => {
+    hi.value = hiNum.value;
+    update(hi);
+  });
   update();
+
+  // clear all filters
+  return {
+    reset() {
+      lo.value = min;
+      hi.value = max;
+      update(); // syncs the number inputs and the filled bar
+    },
+  };
 }
 
 // Prototype only logs the selected range. To filter the chart, keep the loaded
 // data in a variable and redraw with e.g. data.filter(d => d.km >= lo && d.km <= hi).
-setupRange(document.querySelector("#year-filter"), ([lo, hi]) => {
-  console.log("year range:", lo, hi);
+
+// setupRange(document.querySelector("#year-filter"), ([lo, hi]) => {
+//   console.log("year range:", lo, hi);
+// });
+
+// setupRange(document.querySelector("#km-filter"), ([lo, hi]) => {
+//   console.log("km range:", lo, hi);
+// });
+
+// setupRange(document.querySelector("#imperfections-filter"), ([lo, hi]) => {
+//   console.log("imperfections range:", lo, hi);
+// });
+
+// reset all sliders
+const rangeResets = [
+  setupRange(document.querySelector("#year-filter"), ([lo, hi]) => {
+    console.log("year range:", lo, hi);
+  }),
+  setupRange(document.querySelector("#km-filter"), ([lo, hi]) => {
+    console.log("km range:", lo, hi);
+  }),
+  setupRange(document.querySelector("#imperfections-filter"), ([lo, hi]) => {
+    console.log("imperfections range:", lo, hi);
+  }),
+];
+
+document.querySelector("#clear-filters").addEventListener("click", () => {
+  rangeResets.forEach((r) => r.reset());
 });
 
-setupRange(document.querySelector("#km-filter"), ([lo, hi]) => {
-  console.log("km range:", lo, hi);
-});
+// clicking outside the dropdown menu closes it
+document.addEventListener("click", (event) => {
+  const dropdown = document.querySelector("#model-dropdown");
+  const menu = document.querySelector("#filter-menu");
+  if (!dropdown || !menu) return;
 
-
-setupRange(document.querySelector("#imperfections-filter"), ([lo, hi]) => {
-  console.log("imperfections range:", lo, hi);
+  // ignore clicks inside the dropdown (button or checkbox list)
+  if (!dropdown.contains(event.target)) {
+    menu.classList.add("hidden");
+  }
 });

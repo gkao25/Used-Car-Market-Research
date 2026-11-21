@@ -42,65 +42,109 @@
 
     <main>
       <h2>What factors affect the price of used cars in India?</h2>
-      
+
       <div id="sliders">
         <div class="range-filter" id="year-filter">
           <em>Manufacturing Year:</em>
           <div class="range-inputs">
-            <input type="number" min="2010" max="2023" value="2010">
+            <input type="number" min="2010" max="2023" value="2010" />
             &ndash;
-            <input type="number" min="2010" max="2023" value="2023">
+            <input type="number" min="2010" max="2023" value="2023" />
           </div>
           <div class="dual-range">
             <div class="track"><div class="fill"></div></div>
-            <input type="range" min="2010" max="2023" value="2010" aria-label="Minimum year">
-            <input type="range" min="2010" max="2023" value="2023" aria-label="Maximum year">
+            <input
+              type="range"
+              min="2010"
+              max="2023"
+              value="2010"
+              aria-label="Minimum year"
+            />
+            <input
+              type="range"
+              min="2010"
+              max="2023"
+              value="2023"
+              aria-label="Maximum year"
+            />
           </div>
         </div>
 
         <div class="range-filter" id="km-filter">
           <em>Number of kilometers driven:</em>
           <div class="range-inputs">
-            <input type="number" min="1207" max="124716" value="1207">
+            <input type="number" min="1207" max="124716" value="1207" />
             &ndash;
-            <input type="number" min="1207" max="124716" value="124716">
+            <input type="number" min="1207" max="124716" value="124716" />
           </div>
           <div class="dual-range">
             <div class="track"><div class="fill"></div></div>
-            <input type="range" min="1207" max="124716" value="1207" aria-label="Minimum kilometers">
-            <input type="range" min="1207" max="124716" value="124716" aria-label="Maximum kilometers">
+            <input
+              type="range"
+              min="1207"
+              max="124716"
+              value="1207"
+              aria-label="Minimum kilometers"
+            />
+            <input
+              type="range"
+              min="1207"
+              max="124716"
+              value="124716"
+              aria-label="Maximum kilometers"
+            />
           </div>
         </div>
 
         <div class="range-filter" id="imperfections-filter">
           <em>Number of imperfections:</em>
           <div class="range-inputs">
-            <input type="number" min="0" max="43" value="0">
+            <input type="number" min="0" max="43" value="0" />
             &ndash;
-            <input type="number" min="0" max="43" value="43">
+            <input type="number" min="0" max="43" value="43" />
           </div>
           <div class="dual-range">
             <div class="track"><div class="fill"></div></div>
-            <input type="range" min="0" max="43" value="0" aria-label="Minimum imperfections">
-            <input type="range" min="0" max="43" value="43" aria-label="Maximum imperfections">
+            <input
+              type="range"
+              min="0"
+              max="43"
+              value="0"
+              aria-label="Minimum imperfections"
+            />
+            <input
+              type="range"
+              min="0"
+              max="43"
+              value="43"
+              aria-label="Maximum imperfections"
+            />
           </div>
         </div>
 
         <fieldset id="transmission-filter">
           <legend><em>Transmission Type:</em></legend>
           <label>
-            <input type="checkbox" name="transmission" value="Manual" checked>
+            <input type="checkbox" name="transmission" value="Manual" checked />
             Manual
           </label>
 
           <label>
-            <input type="checkbox" name="transmission" value="Automatic" checked>
+            <input
+              type="checkbox"
+              name="transmission"
+              value="Automatic"
+              checked
+            />
             Automatic
           </label>
         </fieldset>
 
         <div id="model-dropdown"></div>
 
+        <div class="clear-wrap">
+          <button id="clear-filters" type="button">Reset all</button>
+        </div>
       </div>
 
       <figure class="line-container">
@@ -116,7 +160,8 @@
         </aside>
         <figcaption>
           Price points for used cars in India from Cars24, filterable by using
-          sliders on the right. Price was converted from Indian rupees into USD.
+          sliders above the plot. Price was converted from Indian rupees into US
+          dollars.
         </figcaption>
       </figure>
 
