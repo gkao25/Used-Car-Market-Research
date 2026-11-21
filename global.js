@@ -25,6 +25,37 @@ function drawBeeswarm(data, { width = 900, height = 500, r = 4.5 } = {}) {
 
   // color by model
   const models = Array.from(new Set(data.map((d) => d.model))).sort();
+  
+  const dropdownModels = ["Select All", ...models];
+
+  // Create dropdown container
+  const filter = d3.select('#model-dropdown');
+  
+  filter.html(`
+    <button id="filter-btn">
+    ▼ Model: All
+    </button>
+    <div id="filter-menu" class="hidden"></div>
+  `);
+
+  const menu = d3.select('#filter-menu');
+
+  menu
+  .selectAll('label')
+  .data(dropdownModels)
+  .join('label')
+  .attr('class', 'option')
+  .html(
+    d => `
+      <input type="checkbox" value="${d}">
+      ${d}
+    `
+  );
+
+  d3.select('#filter-btn').on('click', () => {
+    menu.classed('hidden', !menu.classed('hidden'));
+  });
+
   const color = d3.scaleSequential(d3.interpolateGreens).domain([0, 100]);
 
   // axis
@@ -46,7 +77,7 @@ function drawBeeswarm(data, { width = 900, height = 500, r = 4.5 } = {}) {
   for (let i = 0; i < 300; i++) sim.tick();
 
   // dots
-  svg
+  const dots = svg
     .append("g")
     .selectAll("circle")
     .data(nodes)
@@ -57,7 +88,99 @@ function drawBeeswarm(data, { width = 900, height = 500, r = 4.5 } = {}) {
     )
     .attr("r", r)
     .attr("fill", (d) => color(d.model));
+
+ 
+
+  // Highlight selected model
+  function updateModelHighlight() {
+    const selectedModels = menu
+    .selectAll("input:checked")
+    .nodes()
+    .map(d => d.value)
+    .filter(d => d !== "Select All");
+
+    const selectedTransmissions = d3
+    .select("#transmission-filter")
+    .selectAll("input:checked")
+    .nodes()
+    .map(d => d.value);
+
+    const showAll = selectedModels.length === 0;
+
+    const button = d3.select("#filter-btn");
+
+    if (showAll) {
+      button.text("▼ Model: All");
+    } else {
+      button.text(`▼ Model (${selectedModels.length})`);
+    }
+
+    dots
+    .attr("fill", d => {
+      const modelMatch =
+      showAll || selectedModels.includes(d.model);
+      
+      const transmissionMatch =
+      selectedTransmissions.includes(d.transmission);
+
+      return modelMatch && transmissionMatch
+      ? color(d.model)
+      : "#dddddd";
+    })
+    .attr("opacity", d => {
+      const modelMatch =
+      showAll || selectedModels.includes(d.model);
+
+      const transmissionMatch =
+      selectedTransmissions.includes(d.transmission);
+
+      return modelMatch && transmissionMatch
+      ? 1
+      : 0.2;
+    });
+
+  }
+
+  /*menu
+  .selectAll("input")
+  .on("change", updateModelHighlight);*/
+
+  d3.select("#transmission-filter")
+  .selectAll("input")
+  .on("change", updateModelHighlight);
+  
+  menu
+  .selectAll("input")
+  .on("change", function () {
+
+    if (this.value === "Select All") {
+      const checked = this.checked;
+
+      menu
+        .selectAll("input")
+        .property("checked", checked);
+    } else {
+      const allModels = menu
+        .selectAll("input")
+        .nodes()
+        .filter(d => d.value !== "Select All");
+
+      const checkedModels = allModels.filter(d => d.checked);
+
+      menu
+        .select('input[value="Select All"]')
+        .property(
+          "checked",
+          checkedModels.length === allModels.length
+        );
+    }
+
+  
+  updateModelHighlight();
+  });
 }
+
+
 
 d3.csv(BASE_PATH + "resale_car_clean.csv", (d) => ({
   model: d.model,
@@ -65,6 +188,9 @@ d3.csv(BASE_PATH + "resale_car_clean.csv", (d) => ({
   year: +d.Manufacturing_year,
   km: +d["KM driven"],
   owner: +d.Ownership,
+  transmission: +d.Transmission_Manual === 1
+    ? "Manual"
+    : "Automatic",
   imperfections: +d.Imperfections,
 })).then((data) => {
   drawBeeswarm(data);
