@@ -118,6 +118,42 @@ function drawBeeswarm(data, { width = 900, height = 500, r = 4.5 } = {}) {
     .attr("r", r)
     .attr("fill", (d) => color(d.model));
 
+
+
+  // 当前三个滑块的筛选范围，默认包含全部数据
+  const ranges = {
+    year: d3.extent(data, (d) => d.year),
+    km: d3.extent(data, (d) => d.km),
+    imperfections: d3.extent(data, (d) => d.imperfections),
+  };
+
+  // 一辆车必须同时满足全部筛选条件
+  function matchesFilters(d, selectedModels, selectedTransmissions) {
+    const modelMatch =
+      selectedModels.length === 0 || selectedModels.includes(d.model);
+
+    const transmissionMatch =
+      selectedTransmissions.includes(d.transmission);
+
+    const yearMatch =
+      d.year >= ranges.year[0] && d.year <= ranges.year[1];
+
+    const kmMatch =
+      d.km >= ranges.km[0] && d.km <= ranges.km[1];
+
+    const imperfectionsMatch =
+      d.imperfections >= ranges.imperfections[0] &&
+      d.imperfections <= ranges.imperfections[1];
+
+    return (
+      modelMatch &&
+      transmissionMatch &&
+      yearMatch &&
+      kmMatch &&
+      imperfectionsMatch
+    );
+  }
+
   // Highlight selected model
   function updateModelHighlight() {
     const selectedModels = menu
@@ -143,24 +179,18 @@ function drawBeeswarm(data, { width = 900, height = 500, r = 4.5 } = {}) {
     }
 
     dots
-      .attr("fill", (d) => {
-        const modelMatch = showAll || selectedModels.includes(d.model);
-
-        const transmissionMatch = selectedTransmissions.includes(
-          d.transmission,
-        );
-
-        return modelMatch && transmissionMatch ? color(d.model) : "#dddddd";
-      })
-      .attr("opacity", (d) => {
-        const modelMatch = showAll || selectedModels.includes(d.model);
-
-        const transmissionMatch = selectedTransmissions.includes(
-          d.transmission,
-        );
-
-        return modelMatch && transmissionMatch ? 1 : 0.4;
-      });
+      .attr("fill", (d) =>
+        matchesFilters(d, selectedModels, selectedTransmissions)
+          ? color(d.model)
+          : "#dddddd"
+      )
+      .attr("opacity", (d) =>
+        matchesFilters(d, selectedModels, selectedTransmissions)
+          ? 1
+          : 0.25
+      );
+    
+    
   }
 
   d3.select("#transmission-filter")
@@ -184,6 +214,8 @@ function drawBeeswarm(data, { width = 900, height = 500, r = 4.5 } = {}) {
         .select('input[value="Select All"]')
         .property("checked", checkedModels.length === allModels.length);
     }
+    
+    rangeResets.forEach((range) => range.reset());
 
     updateModelHighlight();
   });
@@ -196,6 +228,24 @@ function drawBeeswarm(data, { width = 900, height = 500, r = 4.5 } = {}) {
       .property("checked", true); // both transmissions on
     updateModelHighlight(); // redraw dots + button label
   });
+
+  // 连接滑块：更新范围后，立即更新圆点颜色
+  const rangeResets = [
+    setupRange(document.querySelector("#year-filter"), (range) => {
+      ranges.year = range;
+      updateModelHighlight();
+    }),
+
+    setupRange(document.querySelector("#km-filter"), (range) => {
+      ranges.km = range;
+      updateModelHighlight();
+    }),
+
+    setupRange(document.querySelector("#imperfections-filter"), (range) => {
+      ranges.imperfections = range;
+      updateModelHighlight();
+    }),
+  ];
 }
 
 // import data and draw the plot
@@ -270,17 +320,7 @@ function setupRange(el, onChange) {
 // });
 
 // reset all sliders
-const rangeResets = [
-  setupRange(document.querySelector("#year-filter"), ([lo, hi]) => {
-    console.log("year range:", lo, hi);
-  }),
-  setupRange(document.querySelector("#km-filter"), ([lo, hi]) => {
-    console.log("km range:", lo, hi);
-  }),
-  setupRange(document.querySelector("#imperfections-filter"), ([lo, hi]) => {
-    console.log("imperfections range:", lo, hi);
-  }),
-];
+
 
 document.querySelector("#clear-filters").addEventListener("click", () => {
   rangeResets.forEach((r) => r.reset());
